@@ -1,73 +1,111 @@
-import numpy as np
+import re
+
+import sympy as sp
+
+from Econometrics.Tools import *
 
 
-class Regression:
-    def __init__(self, X=None, Y=None):
-        self.X = X if X is not None else self.input_matrix("X")
-        self.Y = Y if Y is not None else self.input_matrix("Y")
-        self.betas = None
+class LinearRegression:
+    def __init__(self, X_values=None, Y_values=None, MF=None):
+        self.X_values = X_values if X_values is not None else self.LinRegInput("X")
+        self.Y_values = Y_values if Y_values is not None else self.LinRegInput("Y")
+        self.ModelFunction = MF if MF is not None else self.LinRegModelFunctionInput()
+
+        self.X = None
+        self.Y = transpose_matrix(self.Y_values)
         self.Y_pred = None
+        self.betas = None
+        self.hat_matrix = None
 
-    @staticmethod
-    def transpose_matrix(matrix):
-        tr_mat = [[matrix[j][i] for j in range(len(matrix))] for i in range(len(matrix[0]))]
-        return tr_mat
+    def CalculatePred(self):
+        if not self.betas:
+            self.CalculateBetas()
+        self.Y_pred = multiply_matrices(self.X, self.betas)
 
-    @staticmethod
-    def show_matrix(matrix):
-        for row in matrix:
-            print(row)
+    def CalculateMiddle(self):
+        Xt = transpose_matrix(self.X)
+        XtX = multiply_matrices(Xt, self.X)
+        inverse = inverse_matrix(XtX)
+        middle = multiply_matrices(inverse, Xt)
+
+        return middle
+
+    def CalculateHatMatrix(self):
+        middle = self.CalculateMiddle
+        hat_matrix = multiply_matrices(self.X, middle)
+
+        self.hat_matrix = hat_matrix
+
+    def CalculateBetas(self):
+        middle = self.CalculateMiddle()
+        self.betas = multiply_matrices(middle, self.Y)
 
     def show_true_pred(self):
-        Y_pred = self.multiply_matrices(self.X, self.betas)
+        Y_pred = multiply_matrices(self.X, self.betas)
         # self.Y_pred = Y_pred
         for i in range(len(self.Y)):
             print(f"Y_real: {self.Y[i]}, Y_pred: {Y_pred[i]}")
 
     @staticmethod
-    def input_matrix(name="matrix"):
-        print(f"Input {name} row by row (empty line to finish):")
-        matrix = []
-        while True:
-            row = input()
-            if row.strip() == "":
-                break
-            row = list(map(float, row.split()))
-            matrix.append(row)
-        return np.array(matrix)
+    def LinRegInput(name="matrix"):
+        print(f"Input values of {name}:")
+        matrix = list(map(int, input().split()))
+        return matrix
 
-    @staticmethod
-    def inverse_matrix(matrix):
-        return np.linalg.inv(matrix)
+    def LinRegModelFunctionInput(self):
+        print(f"Input Linear Regression function as 'y = aB0 + bB1 + cB2..'"
+              f"Where a, b, c.. are polynomials of x\n"
+              f"(Use common notation like 2*x^4B0 + ...")
 
-    @staticmethod
-    def multiply_matrices(matrix_1, matrix_2):
-        return np.dot(matrix_1, matrix_2)
+        def split_formula(formula):
+            formula = formula.replace(' ', '')
+            terms = re.findall(r'([+-]?\d*x?\^?\d*)B\d+', formula)
+            return terms
+
+        def evaluate_symbolic_expression(formula, x_value):
+            x = sp.Symbol('x')
+            expression = sp.sympify(formula)
+            result = expression.subs(x, x_value)
+            return result
+
+        formula = input()
+        terms = split_formula(formula)
+        X = []
+        for x in self.X_values:
+            rows = []
+            for term in terms:
+                result = evaluate_symbolic_expression(term, x)
+                rows.append(result)
+            X.append(rows)
+
+        self.X = transpose_matrix(X)
+        print(self.X)
 
     def find_betas(self):
-        X_t = self.transpose_matrix(self.X)
-        one = self.multiply_matrices(X_t, self.X)
+        X_t = transpose_matrix(self.X)
+        one = multiply_matrices(X_t, self.X)
         print("X_t * X:")
-        self.show_matrix(one)
-        two = self.inverse_matrix(one)
+        show_matrix(one)
+        two = inverse_matrix(one)
         print("Inverse:")
-        self.show_matrix(two)
-        three = self.multiply_matrices(X_t, self.Y)
+        show_matrix(two)
+        three = multiply_matrices(X_t, self.Y)
         print("X_t * Y:")
-        self.show_matrix(three)
-        self.betas = self.multiply_matrices(two, three)
+        show_matrix(three)
+        self.betas = multiply_matrices(two, three)
         return self.betas
 
     def run_algo(self):
         print("Running algorithm...")
         betas = self.find_betas()
         print("\nBetas:")
-        self.show_matrix(betas)
+        show_matrix(betas)
         print("\nY_real, Y_pred:")
         self.show_true_pred()
 
-    # def CalcSST(self):
+    def CalcSST(self):
+        return 0
 
 
-R = Regression()
+R = LinearRegression()
 R.run_algo()
