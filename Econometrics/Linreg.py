@@ -74,12 +74,38 @@ class LinearRegression:
         # print('Y:', Y)
         return Y
 
+    def CalculateSST(self) -> float:
+        SST = 0
+        y_avg = np.mean(self.Y_values)
+        for y in self.Y_values:
+            SST += (y - y_avg) ** 2
 
-R = LinearRegression([2, 1, 3],
-                     [5, 10, 4],
-                     "1B + xB + x**2B")
+        return SST
+
+    def CalculateSSR(self) -> float:
+        SSR = 0
+        for i in range(len(self.Y_values)):
+            SSR += (self.Y_values[i] - self.Y_pred[i]) ** 2
+
+        return SSR
+
+    def CalculateSSE(self) -> float:
+        SSE = 0
+        y_avg = np.mean(self.Y_values)
+        for y in self.Y_pred:
+            SSE += (y_avg - y ** 2)
+
+        return SSE
+
+
+R = LinearRegression([5, 10, 4],
+                     [2, 1, 3],
+                     "1B + xB")
 R.CalculateXMatrix()
 R.CalculateBetas()
 
-print(R.betas)
-print(R.Y)
+print(f'Betas: {R.betas}')
+print(f'Y predicted: {R.Y_pred}')
+print(R.CalculateSST())
+print(R.CalculateSSR())
+print(R.CalculateSSE())
