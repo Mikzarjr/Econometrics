@@ -6,34 +6,14 @@ class LinearRegression:
         self.X_values = np.array(X_values) if X_values is not None else self.LinRegInput("X")
         self.Y_values = np.array(Y_values) if Y_values is not None else self.LinRegInput("Y")
         self.ModelFunction = self.LinRegModelFunctionInput(MF)
-        self.X = None
-        self.Y = transpose_matrix(self.Y_values)
-        self.Y_pred = None
-        self.betas = None
-        self.hat_matrix = None
 
-    def CalculatePred(self) -> None:
-        if not self.betas:
-            self.CalculateBetas()
-        self.Y_pred = multiply_matrices(self.X, self.betas)
+        self.X = self.CalculateXMatrix()
+        self.Y = self.CalculateYMatrix()
 
-    def CalculateMiddle(self) -> np.ndarray:
-        Xt = transpose_matrix(self.X)
-        XtX = multiply_matrices(Xt, self.X)
-        inverse = inverse_matrix(XtX)
-        middle = multiply_matrices(inverse, Xt)
+        self.betas = self.CalculateBetas()
+        self.hat_matrix = self.CalculateHatMatrix()
 
-        return middle
-
-    def CalculateHatMatrix(self) -> None:
-        middle = self.CalculateMiddle()
-        hat_matrix = multiply_matrices(self.X, middle)
-
-        self.hat_matrix = hat_matrix
-
-    def CalculateBetas(self) -> None:
-        middle = self.CalculateMiddle()
-        self.betas = multiply_matrices(middle, self.Y)
+        self.Y_pred = self.CalculatePred()
 
     @staticmethod
     def LinRegInput(name: str = "matrix") -> np.ndarray:
@@ -55,7 +35,28 @@ class LinearRegression:
         terms = get_terms(formula)
         return terms
 
-    def CalculateXMatrix(self):
+    def CalculatePred(self) -> np.ndarray:
+        Y_pred = multiply_matrices(self.X, self.betas)
+        return Y_pred
+
+    def CalculateMiddle(self) -> np.ndarray:
+        Xt = transpose_matrix(self.X)
+        XtX = multiply_matrices(Xt, self.X)
+        inverse = inverse_matrix(XtX)
+        middle = multiply_matrices(inverse, Xt)
+        return middle
+
+    def CalculateHatMatrix(self) -> np.ndarray:
+        middle = self.CalculateMiddle()
+        hat_matrix = multiply_matrices(self.X, middle)
+        return hat_matrix
+
+    def CalculateBetas(self) -> np.ndarray:
+        middle = self.CalculateMiddle()
+        betas = multiply_matrices(middle, self.Y)
+        return betas
+
+    def CalculateXMatrix(self) -> np.ndarray:
         X = []
         for x in self.X_values:
             row = []
@@ -64,14 +65,21 @@ class LinearRegression:
                 row.append(a)
             X.append(row)
 
-        self.X = transpose_matrix(np.array(X))
+        X = np.array(X)
+        # print('X:', X)
+        return X
+
+    def CalculateYMatrix(self) -> np.ndarray:
+        Y = transpose_matrix(self.Y_values)
+        # print('Y:', Y)
+        return Y
 
 
-R = LinearRegression([1, 2, 3],
-                     [1, 2, 3],
-                     "2B + 3*xB - 2*3*x**2B")
+R = LinearRegression([2, 1, 3],
+                     [5, 10, 4],
+                     "1B + xB + x**2B")
 R.CalculateXMatrix()
 R.CalculateBetas()
-R.CalculateHatMatrix()
 
 print(R.betas)
+print(R.Y)
