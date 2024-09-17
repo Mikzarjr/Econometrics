@@ -23,15 +23,15 @@ class LinearRegression:
 
     @staticmethod
     def LinRegModelFunctionInput(MF: str) -> list[str]:
+        formula = MF if MF is not None else input(f"Input Linear Regression function as 'y = aB + bB + cB..'"
+                                                  f"Where a, b, c.. are polynomials of x\n"
+                                                  f"(Use common Python notation like 2B + 3*xB - 2*x**2B + ...\n")
 
         def get_terms(formula):
             terms = list(formula.split('B'))
             terms.pop(-1)
             return terms
 
-        formula = MF if MF is not None else input(f"Input Linear Regression function as 'y = aB + bB + cB..'"
-                                                  f"Where a, b, c.. are polynomials of x\n"
-                                                  f"(Use common Python notation like 2B + 3*xB - 2*x**2B + ...\n")
         terms = get_terms(formula)
         return terms
 
@@ -74,6 +74,7 @@ class LinearRegression:
         # print('Y:', Y)
         return Y
 
+    @property
     def CalculateSST(self) -> float:
         SST = 0
         y_avg = np.mean(self.Y_values)
@@ -82,6 +83,7 @@ class LinearRegression:
 
         return SST
 
+    @property
     def CalculateSSR(self) -> float:
         SSR = 0
         for i in range(len(self.Y_values)):
@@ -89,6 +91,7 @@ class LinearRegression:
 
         return SSR
 
+    @property
     def CalculateSSE(self) -> float:
         SSE = 0
         y_avg = np.mean(self.Y_values)
@@ -106,6 +109,6 @@ R.CalculateBetas()
 
 print(f'Betas: {R.betas}')
 print(f'Y predicted: {R.Y_pred}')
-print(R.CalculateSST())
-print(R.CalculateSSR())
-print(R.CalculateSSE())
+print(R.CalculateSST)
+print(R.CalculateSSR)
+print(R.CalculateSSE)
