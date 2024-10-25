@@ -1,13 +1,21 @@
+from typing import Optional
+
 from Econometrics.Tools import *
 
 
 class LinearRegression:
-    def __init__(self, X_values: list = None, Y_values: list = None, MF: str = None):
-        self.X_values = np.array(X_values) if X_values is not None else self.LinRegInput("X")
+    def __init__(self, X_values: Optional[list] = None, X: Optional[list[list]] = None, Y_values: list = None,
+                 MF: str = None):
+        if X_values:
+            self.X_values = np.array(X_values)
+            self.X = self.CalculateXMatrix()
+        elif X:
+            self.X = np.array(X)
+
         self.Y_values = np.array(Y_values) if Y_values is not None else self.LinRegInput("Y")
         self.ModelFunction = self.LinRegModelFunctionInput(MF)
 
-        self.X = self.CalculateXMatrix()
+        # self.X = np.array(X) if X is not None else self.CalculateXMatrix()
         self.Y = self.CalculateYMatrix()
 
         self.betas = self.CalculateBetas()
@@ -66,7 +74,6 @@ class LinearRegression:
             X.append(row)
 
         X = np.array(X)
-        # print('X:', X)
         return X
 
     def CalculateYMatrix(self) -> np.ndarray:

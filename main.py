@@ -1,14 +1,14 @@
-# from Econometrics.Linreg import LinearRegression
-#
-# # Example usage:
-# R = LinearRegression([5, 10, 4],
-#                      [2, 1, 3],
-#                      "1B + xB")
-# R.CalculateXMatrix()
-# R.CalculateBetas()
-#
-# print(f'Betas: {R.betas}')
-# print(f'Y predicted: {R.Y_pred}')
-# print(R.CalculateSST)
-# print(R.CalculateSSR)
-# print(R.CalculateSSE)
+from Econometrics.Linreg import LinearRegression
+
+R = LinearRegression(X=[[1, 0, 0],
+                        [1, 0, 0],
+                        [1, 1, 0],
+                        [1, 1, 0],
+                        [1, 1, 1]],
+                     Y_values=[1, 2, 3, 4, 5],
+                     MF="1B + xB + x^2B")
+
+R.CalculateBetas()
+
+print(f'Betas: {R.betas}')
+print(f'Y predicted: {R.Y_pred}')
